@@ -12,7 +12,7 @@ Create a local copy of database files from a Datasette instance.
 
 ## Usage
 
-This only works against Datasette instances running immutable databases (with the `-i` opiton). Most databases published using the `datasette publish` command should be doing this.
+This only works against Datasette instances running immutable databases (with the `-i` option). Databases published using the `datasette publish` command should be compatible with this tool.
 
 To download copies of all `.db` files from an instance, run:
 
