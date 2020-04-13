@@ -27,3 +27,5 @@ The command stores its own copy of a `databases.json` manifest and uses it to on
 If your instance is protected by an API token, you can use `--token` to provide it:
 
     datasette-clone https://latest.datasette.io --token=xyz
+
+For verbose output showing what the tool is doing, use `-v`.

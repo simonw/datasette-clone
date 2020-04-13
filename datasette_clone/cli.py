@@ -13,7 +13,10 @@ from urllib.parse import urlparse
 @click.option(
     "--token", help="Optional API token to use when talking to Datasette",
 )
-def cli(datasette_url, directory, token):
+@click.option(
+    "-v", "--verbose", is_flag=True, help="Verbose output",
+)
+def cli(datasette_url, directory, token, verbose):
     "Create a local copy of database files from a Datasette instance"
     bits = urlparse(datasette_url)
     directory = pathlib.Path(directory)
@@ -42,13 +45,25 @@ def cli(datasette_url, directory, token):
             for db in json.load(directory_json.open())
             if not db["is_mutable"] and db["hash"] is not None
         }
+        if verbose:
+            click.echo("Found existing databases.json, cached databases are:")
+            click.echo(json.dumps(cached_databases, indent=4))
 
     for path, hash in databases_to_fetch.items():
         if cached_databases.get(path) != hash:
+            if verbose:
+                click.echo(
+                    "Fetching {}, current hash {} != {}".format(
+                        path, hash, cached_databases.get(path)
+                    )
+                )
             # Fetch it!
             r = requests.get(base_url + path, headers=headers)
-            with open(directory / path, 'wb') as fd:
+            with open(directory / path, "wb") as fd:
                 for chunk in r.iter_content(chunk_size=128):
                     fd.write(chunk)
+        else:
+            if verbose:
+                click.echo("Skipping {}, hash has not changed".format(path))
 
     directory_json.open("w").write(json.dumps(databases, indent=4) + "\n")
