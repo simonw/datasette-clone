@@ -24,7 +24,9 @@ You can provide an optional second argument to specify a directory:
 
     datasette-clone https://latest.datasette.io /tmp/here-please
 
-The command stores its own copy of a `databases.json` manifest and uses it to only download databeses that have changed.
+The command stores its own copy of a `databases.json` manifest and uses it to only download databases that have changed the next time you run the command.
+
+It also stores a copy of the instance's `metadata.json` to ensure you have a copy of any source and licensing information for the downloaded databases.
 
 If your instance is protected by an API token, you can use `--token` to provide it:
 
