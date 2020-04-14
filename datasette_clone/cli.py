@@ -75,7 +75,8 @@ def cli(datasette_url, directory, token, verbose):
                 click.echo("Skipping {}, hash has not changed".format(db_path))
 
     # Last step: grab a copy of the metadata
-    (directory / "metadata.json").open("w").write(
+    metadata_json = (directory / "metadata.json")
+    metadata_json.open("w").write(
         json.dumps(
             requests.get(base_url + "-/metadata.json", headers=headers).json(), indent=4
         )
@@ -83,3 +84,4 @@ def cli(datasette_url, directory, token, verbose):
     directory_json.open("w").write(json.dumps(databases, indent=4) + "\n")
     if verbose:
         click.echo("Wrote {}".format(directory_json))
+        click.echo("Wrote {}".format(metadata_json))
