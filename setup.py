@@ -27,4 +27,6 @@ setup(
         datasette-clone=datasette_clone.cli:cli
     """,
     install_requires=["requests", "click"],
+    extras_require={"test": ["pytest", "requests-mock"]},
+    tests_require=["datasette-auth-github[test]"],
 )
