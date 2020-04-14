@@ -6,6 +6,8 @@
 
 Create a local copy of database files from a Datasette instance.
 
+See [datasette-clone](https://simonwillison.net/2020/Apr/14/datasette-clone/) on my blog for background on this project.
+
 ## How to install
 
     $ pip install datasette-clone
