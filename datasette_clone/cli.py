@@ -18,6 +18,11 @@ from urllib.parse import urlparse
 )
 def cli(datasette_url, directory, token, verbose):
     "Create a local copy of database files from a Datasette instance"
+    if not datasette_url.startswith("https://") and not datasette_url.startswith(
+        "https://"
+    ):
+        # It's 2020, if you want http you'll have to be explicit about it
+        datasette_url = "https://{}".format(datasette_url)
     bits = urlparse(datasette_url)
     directory = pathlib.Path(directory)
     if not directory.exists():
@@ -46,24 +51,29 @@ def cli(datasette_url, directory, token, verbose):
             if not db["is_mutable"] and db["hash"] is not None
         }
         if verbose:
-            click.echo("Found existing databases.json, cached databases are:")
+            click.echo(
+                "Found existing {}, cached databases are:".format(directory_json)
+            )
             click.echo(json.dumps(cached_databases, indent=4))
 
     for path, hash in databases_to_fetch.items():
+        db_path = directory / path
         if cached_databases.get(path) != hash:
             if verbose:
                 click.echo(
                     "Fetching {}, current hash {} != {}".format(
-                        path, hash, cached_databases.get(path)
+                        db_path, hash, cached_databases.get(path)
                     )
                 )
             # Fetch it!
             r = requests.get(base_url + path, headers=headers)
-            with open(directory / path, "wb") as fd:
+            with open(db_path, "wb") as fd:
                 for chunk in r.iter_content(chunk_size=128):
                     fd.write(chunk)
         else:
             if verbose:
-                click.echo("Skipping {}, hash has not changed".format(path))
+                click.echo("Skipping {}, hash has not changed".format(db_path))
 
     directory_json.open("w").write(json.dumps(databases, indent=4) + "\n")
+    if verbose:
+        click.echo("Wrote {}".format(directory_json))
