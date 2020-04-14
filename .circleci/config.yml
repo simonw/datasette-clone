@@ -44,7 +44,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pip install -e .
+            pip install -e .[test]
+            pytest
             datasette-clone --help
   test-python-install:
     parameters:
@@ -71,7 +72,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pip install -e .
+            pip install -e .[test]
+            pytest
             datasette-clone --help
   deploy:
     docker:
