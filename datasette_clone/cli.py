@@ -66,16 +66,25 @@ def cli(datasette_url, directory, token, verbose):
                     )
                 )
             # Fetch it!
-            r = requests.get(base_url + path, headers=headers)
+            response = requests.get(base_url + path, headers=headers, stream=True)
             with open(db_path, "wb") as fd:
-                for chunk in r.iter_content(chunk_size=128):
-                    fd.write(chunk)
+                if verbose and "content-length" in response.headers:
+                    with click.progressbar(
+                        length=int(response.headers["content-length"]),
+                        label="{:,.2f} MB".format(float(response.headers["content-length"]) / (1024 * 1024))
+                    ) as bar:
+                        for chunk in response.iter_content(chunk_size=1024 * 10):
+                            bar.update(len(chunk))
+                            fd.write(chunk)
+                else:
+                    for chunk in response.iter_content(chunk_size=1024 * 10):
+                        fd.write(chunk)
         else:
             if verbose:
                 click.echo("Skipping {}, hash has not changed".format(db_path))
 
     # Last step: grab a copy of the metadata
-    metadata_json = (directory / "metadata.json")
+    metadata_json = directory / "metadata.json"
     metadata_json.open("w").write(
         json.dumps(
             requests.get(base_url + "-/metadata.json", headers=headers).json(), indent=4
